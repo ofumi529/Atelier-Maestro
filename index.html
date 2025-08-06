@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アトリエ マエストロ - 古典絵画創作工房</title>
+    
+    <!-- OGP Meta Tags -->
+    <meta property="og:title" content="アトリエ マエストロ - 古典絵画創作工房">
+    <meta property="og:description" content="HTML5 Canvasで描く古典アート風お絵かきアプリ。AIによる作品解析機能付きで、古典的な額縁で作品を美しく表示します。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://atelier-maestro.vercel.app">
+    <meta property="og:image" content="https://atelier-maestro.vercel.app/assets/ogp-image.svg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/svg+xml">
+    <meta property="og:site_name" content="アトリエ マエストロ">
+    <meta property="og:locale" content="ja_JP">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="アトリエ マエストロ - 古典絵画創作工房">
+    <meta name="twitter:description" content="HTML5 Canvasで描く古典アート風お絵かきアプリ。AIによる作品解析機能付きで、古典的な額縁で作品を美しく表示します。">
+    <meta name="twitter:image" content="https://atelier-maestro.vercel.app/assets/ogp-image.svg">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+    <link rel="alternate icon" href="/assets/favicon.ico">
+    
+    <!-- General Meta Tags -->
+    <meta name="description" content="HTML5 Canvasで描く古典アート風お絵かきアプリ。ペン描画、消しゴム、カラーパレット、元に戻す機能、PNG保存、AI解析機能を搭載。レスポンシブデザイン対応。">
+    <meta name="keywords" content="お絵かき, HTML5 Canvas, 古典アート, AI解析, 絵画, アトリエ, マエストロ, デジタルアート">
+    <meta name="author" content="アトリエ マエストロ">
+    
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ヘッダー -->
+        <header class="app-header">
+            <h1><i class="fas fa-palette"></i> 🎨 アトリエ マエストロ</h1>
+            <div class="header-actions">
+                <button id="analyzeBtn" class="btn btn-ai" title="AI解析">
+                    <i class="fas fa-robot"></i> アート解析
+                </button>
+                <button id="saveBtn" class="btn btn-primary" title="保存">
+                    <i class="fas fa-download"></i> 保存
+                </button>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- ツールバー -->
+            <div class="toolbar">
+                <!-- ツール選択 -->
+                <div class="tool-group">
+                    <h3>ツール</h3>
+                    <div class="tool-buttons">
+                        <button id="penTool" class="tool-btn active" data-tool="pen" title="ペン">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button id="eraserTool" class="tool-btn" data-tool="eraser" title="消しゴム">
+                            <i class="fas fa-eraser"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- カラーパレット -->
+                <div class="tool-group">
+                    <h3>色</h3>
+                    <div class="color-palette">
+                        <div class="color-swatch active" data-color="#000000" style="background-color: #000000;" title="黒"></div>
+                        <div class="color-swatch" data-color="#FF0000" style="background-color: #FF0000;" title="赤"></div>
+                        <div class="color-swatch" data-color="#00FF00" style="background-color: #00FF00;" title="緑"></div>
+                        <div class="color-swatch" data-color="#0000FF" style="background-color: #0000FF;" title="青"></div>
+                        <div class="color-swatch" data-color="#FFFF00" style="background-color: #FFFF00;" title="黄"></div>
+                        <div class="color-swatch" data-color="#FF00FF" style="background-color: #FF00FF;" title="マゼンタ"></div>
+                        <div class="color-swatch" data-color="#00FFFF" style="background-color: #00FFFF;" title="シアン"></div>
+                        <div class="color-swatch" data-color="#FFFFFF" style="background-color: #FFFFFF; border: 1px solid #ddd;" title="白"></div>
+                    </div>
+                    <div class="custom-color">
+                        <input type="color" id="colorPicker" value="#000000" title="カスタムカラー">
+                        <label for="colorPicker">カスタム</label>
+                    </div>
+                </div>
+
+                <!-- ブラシサイズ -->
+                <div class="tool-group">
+                    <h3>ブラシサイズ</h3>
+                    <div class="brush-size-control">
+                        <input type="range" id="brushSize" min="1" max="50" value="5">
+                        <span id="brushSizeValue">5px</span>
+                        <div id="brushPreview" class="brush-preview"></div>
+                    </div>
+                </div>
+
+                <!-- アクション -->
+                <div class="tool-group">
+                    <h3>アクション</h3>
+                    <div class="action-buttons">
+                        <button id="undoBtn" class="btn btn-secondary" title="元に戻す">
+                            <i class="fas fa-undo"></i> 元に戻す
+                        </button>
+                        <button id="redoBtn" class="btn btn-secondary" title="やり直し">
+                            <i class="fas fa-redo"></i> やり直し
+                        </button>
+                        <button id="clearBtn" class="btn btn-danger" title="全消去">
+                            <i class="fas fa-trash"></i> 全消去
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- キャンバス領域 -->
+            <div class="canvas-container">
+                <canvas id="paintCanvas"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <!-- AI解析結果モーダル -->
+    <div id="analysisModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-robot"></i> アート解析結果</h2>
+                <button class="modal-close" id="modalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="artwork-display">
+                    <div class="classical-frame">
+                        <div class="frame-outer">
+                            <div class="frame-inner">
+                                <canvas id="artworkPreview"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="analysisResult">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>AIが作品を解析中です...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

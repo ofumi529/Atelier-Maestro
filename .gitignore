@@ -1,0 +1,26 @@
+# 依存関係
+node_modules/
+
+# 環境変数
+.env
+
+# ログファイル
+*.log
+npm-debug.log*
+
+# ランタイムデータ
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# カバレッジディレクトリ
+coverage/
+
+# IDE設定
+.vscode/
+.idea/
+
+# OS生成ファイル
+.DS_Store
+Thumbs.db
