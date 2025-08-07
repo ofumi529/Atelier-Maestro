@@ -1,3 +1,10 @@
+// Vercel Analytics イベントトラッキング関数
+function trackEvent(eventName, properties = {}) {
+    if (typeof window !== 'undefined' && window.va) {
+        window.va('track', eventName, properties);
+    }
+}
+
 class PaintApp {
     constructor() {
         this.canvas = document.getElementById('paintCanvas');
@@ -12,6 +19,13 @@ class PaintApp {
         this.initializeCanvas();
         this.setupEventListeners();
         this.saveState();
+        
+        // アプリ起動をトラッキング
+        trackEvent('App Started', {
+            userAgent: navigator.userAgent,
+            screenWidth: window.screen.width,
+            screenHeight: window.screen.height
+        });
     }
 
     initializeCanvas() {
@@ -153,6 +167,12 @@ class PaintApp {
     selectTool(tool) {
         this.currentTool = tool;
         
+        // Analytics イベント - ツール選択
+        trackEvent('Tool Selected', {
+            tool: tool,
+            timestamp: new Date().toISOString()
+        });
+        
         // ツールボタンの状態更新
         document.querySelectorAll('.tool-btn').forEach(btn => {
             btn.classList.remove('active');
@@ -259,6 +279,13 @@ class PaintApp {
         link.download = `artwork-${timestamp}.png`;
         link.href = this.canvas.toDataURL();
         link.click();
+        
+        // Analytics イベント
+        trackEvent('Artwork Saved', {
+            timestamp: timestamp,
+            canvasWidth: this.canvas.width,
+            canvasHeight: this.canvas.height
+        });
     }
 
     // 利用制限チェック関数
@@ -294,6 +321,13 @@ class PaintApp {
         const modal = document.getElementById('analysisModal');
         const resultDiv = document.getElementById('analysisResult');
         const artworkPreview = document.getElementById('artworkPreview');
+        
+        // Analytics イベント - AI解析開始
+        trackEvent('AI Analysis Started', {
+            canvasWidth: this.canvas.width,
+            canvasHeight: this.canvas.height,
+            timestamp: new Date().toISOString()
+        });
         
         // 額縁内に作品を表示
         this.displayArtworkInFrame(artworkPreview);
@@ -359,6 +393,13 @@ class PaintApp {
                 // 利用回数をインクリメント
                 this.incrementUsage();
                 const newUsageStatus = this.checkUsageLimit();
+                
+                // Analytics イベント - AI解析成功
+                trackEvent('AI Analysis Completed', {
+                    success: true,
+                    analysisLength: data.analysis.length,
+                    timestamp: new Date().toISOString()
+                });
                 
                 // 成功時の表示
                 const analysisText = data.analysis;
@@ -600,6 +641,12 @@ class PaintApp {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        // Analytics イベント
+        trackEvent('Share Image Downloaded', {
+            filename: filename,
+            timestamp: new Date().toISOString()
+        });
     }
     
     // Xでシェア
@@ -608,6 +655,13 @@ class PaintApp {
         const encodedText = encodeURIComponent(shareText);
         const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
         window.open(twitterUrl, '_blank', 'width=600,height=400');
+        
+        // Analytics イベント
+        trackEvent('Shared on X', {
+            title: title.substring(0, 50),
+            descriptionLength: description.length,
+            timestamp: new Date().toISOString()
+        });
     }
     
     // シェア機能を表示して初期化
