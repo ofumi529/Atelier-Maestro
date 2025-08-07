@@ -315,11 +315,35 @@ class PaintApp {
                 `;
             }
         } catch (error) {
-            console.error('解析エラー:', error);
+            console.error('=== フロントエンドエラー ===');
+            console.error('エラー詳細:', error);
+            console.error('エラーメッセージ:', error.message);
+            console.error('エラースタック:', error.stack);
+            
+            let errorMessage = 'サーバーとの通信に失敗しました。';
+            let debugInfo = '';
+            
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                errorMessage = 'ネットワーク接続エラーです。インターネット接続を確認してください。';
+                debugInfo = 'Network connection failed';
+            } else if (error.message.includes('Failed to fetch')) {
+                errorMessage = 'APIエンドポイントにアクセスできません。サーバーの状態を確認してください。';
+                debugInfo = 'API endpoint unreachable';
+            }
+            
             resultDiv.innerHTML = `
                 <div class="error-content">
                     <h3><i class="fas fa-exclamation-triangle"></i> 通信エラー</h3>
-                    <p>サーバーとの通信に失敗しました。サーバーが起動していることを確認してください。</p>
+                    <p>${errorMessage}</p>
+                    ${debugInfo ? `<p><small>デバッグ情報: ${debugInfo}</small></p>` : ''}
+                    <div class="error-help">
+                        <p><strong>解決方法:</strong></p>
+                        <ul>
+                            <li>ページをリロードして再度お試しください</li>
+                            <li>インターネット接続を確認してください</li>
+                            <li>しばらく時間をおいてから再度お試しください</li>
+                        </ul>
+                    </div>
                 </div>
             `;
         }

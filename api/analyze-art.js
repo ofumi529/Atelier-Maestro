@@ -19,6 +19,11 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
+    // デバッグ情報をログに出力
+    console.log('=== API呼び出し開始 ===');
+    console.log('環境:', process.env.NODE_ENV || 'development');
+    console.log('APIキー設定状況:', process.env.CLAUDE_API_KEY ? '設定済み' : '未設定');
+
     try {
         const { imageData } = req.body;
         
@@ -28,10 +33,19 @@ export default async function handler(req, res) {
         
         // APIキーの検証を強化
         const apiKey = process.env.CLAUDE_API_KEY;
-        if (!apiKey || !apiKey.startsWith('sk-ant-')) {
-            console.log('エラー: 有効なClaude APIキーが設定されていません');
+        if (!apiKey) {
+            console.log('エラー: CLAUDE_API_KEYが設定されていません');
             return res.status(500).json({ 
-                error: 'AI解析サービスが一時的に利用できません。しばらくしてから再度お試しください。'
+                error: 'AI解析サービスの設定が完了していません。管理者にお問い合わせください。',
+                debug: 'CLAUDE_API_KEY not set'
+            });
+        }
+        
+        if (!apiKey.startsWith('sk-ant-')) {
+            console.log('エラー: 無効なClaude APIキー形式');
+            return res.status(500).json({ 
+                error: 'AI解析サービスの設定に問題があります。管理者にお問い合わせください。',
+                debug: 'Invalid API key format'
             });
         }
 
@@ -72,14 +86,32 @@ export default async function handler(req, res) {
         res.json({ analysis });
 
     } catch (error) {
-        console.error('Claude API エラー:', error.response?.data || error.message);
+        console.error('=== エラー発生 ===');
+        console.error('エラーメッセージ:', error.message);
+        console.error('HTTPステータス:', error.response?.status);
+        console.error('レスポンスデータ:', error.response?.data);
+        console.error('リクエストURL:', error.config?.url);
         
-        if (error.response?.status === 401) {
-            res.status(401).json({ error: 'Claude APIキーが無効です。正しいAPIキーを設定してください。' });
+        if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+            res.status(503).json({ 
+                error: 'ネットワーク接続エラーです。しばらくしてから再度お試しください。',
+                debug: `Network error: ${error.code}`
+            });
+        } else if (error.response?.status === 401) {
+            res.status(401).json({ 
+                error: 'Claude APIキーが無効です。管理者にお問い合わせください。',
+                debug: 'Invalid API key'
+            });
         } else if (error.response?.status === 429) {
-            res.status(429).json({ error: 'API利用制限に達しました。しばらく待ってから再試行してください。' });
+            res.status(429).json({ 
+                error: 'API利用制限に達しました。しばらく待ってから再試行してください。',
+                debug: 'Rate limit exceeded'
+            });
         } else {
-            res.status(500).json({ error: 'アート解析中にエラーが発生しました。' });
+            res.status(500).json({ 
+                error: 'アート解析中にエラーが発生しました。しばらくしてから再度お試しください。',
+                debug: error.message || 'Unknown error'
+            });
         }
     }
 }
