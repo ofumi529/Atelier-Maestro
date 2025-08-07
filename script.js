@@ -18,9 +18,18 @@ class PaintApp {
         // キャンバスサイズを設定
         const container = document.querySelector('.canvas-container');
         const containerRect = container.getBoundingClientRect();
+        const isMobile = window.innerWidth <= 768;
         
-        this.canvas.width = Math.min(800, containerRect.width - 40);
-        this.canvas.height = Math.min(600, containerRect.height - 40);
+        if (isMobile) {
+            // モバイルでは縦長に設定
+            const maxWidth = Math.min(350, containerRect.width - 20);
+            this.canvas.width = maxWidth;
+            this.canvas.height = Math.floor(maxWidth * 1.4); // 縦長比率 1:1.4
+        } else {
+            // デスクトップでは横長
+            this.canvas.width = Math.min(800, containerRect.width - 40);
+            this.canvas.height = Math.min(600, containerRect.height - 40);
+        }
         
         // キャンバスの背景を白に設定
         this.ctx.fillStyle = 'white';
@@ -453,9 +462,21 @@ class PaintApp {
 
     handleResize() {
         // リサイズ時にキャンバスサイズを調整（内容は保持）
-        const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCanvas.width = this.canvas.width;
+        tempCanvas.height = this.canvas.height;
+        tempCtx.drawImage(this.canvas, 0, 0);
+        
+        const oldWidth = this.canvas.width;
+        const oldHeight = this.canvas.height;
+        
         this.initializeCanvas();
-        this.ctx.putImageData(imageData, 0, 0);
+        
+        // 新しいサイズに合わせて内容をスケール
+        const scaleX = this.canvas.width / oldWidth;
+        const scaleY = this.canvas.height / oldHeight;
+        this.ctx.drawImage(tempCanvas, 0, 0, oldWidth, oldHeight, 0, 0, this.canvas.width, this.canvas.height);
     }
 }
 
