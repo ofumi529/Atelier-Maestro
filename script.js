@@ -548,11 +548,11 @@ class PaintApp {
         });
         
         // 解説文
-        currentY += 20;
+        currentY += 15;
         ctx.fillStyle = '#654321';
-        ctx.font = '20px serif';
-        const descLines = this.wrapText(ctx, description, textWidth, 24);
-        const maxDescLines = Math.min(descLines.length, 8); // 最大8行
+        ctx.font = '18px serif';
+        const descLines = this.wrapText(ctx, description, textWidth, 22);
+        const maxDescLines = Math.min(descLines.length, 12); // 最大12行
         for (let i = 0; i < maxDescLines; i++) {
             ctx.fillText(descLines[i], textX, currentY);
             currentY += 28;
@@ -566,21 +566,28 @@ class PaintApp {
         return shareCanvas;
     }
     
-    // テキストを指定幅で折り返し
+    // テキストを指定幅で折り返し（日本語対応）
     wrapText(ctx, text, maxWidth, lineHeight) {
-        const words = text.split(' ');
         const lines = [];
         let currentLine = '';
         
-        for (let word of words) {
-            const testLine = currentLine + (currentLine ? ' ' : '') + word;
+        // 日本語テキストの場合、文字単位で処理
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            const testLine = currentLine + char;
             const metrics = ctx.measureText(testLine);
             
             if (metrics.width > maxWidth && currentLine) {
                 lines.push(currentLine);
-                currentLine = word;
+                currentLine = char;
             } else {
                 currentLine = testLine;
+            }
+            
+            // 改行文字の場合は強制改行
+            if (char === '\n') {
+                lines.push(currentLine.slice(0, -1)); // 改行文字を除く
+                currentLine = '';
             }
         }
         
