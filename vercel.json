@@ -1,8 +1,5 @@
 {
   "version": 2,
-  "analytics": {
-    "enable": true
-  },
   "functions": {
     "api/analyze-art.js": {
       "maxDuration": 30
