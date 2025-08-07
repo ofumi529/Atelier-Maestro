@@ -1,7 +1,7 @@
-import axios from 'axios';
+const axios = require('axios');
 
 // Vercelサーバーレス関数として動作するAPIエンドポイント
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     try {
         // CORS設定
         res.setHeader('Access-Control-Allow-Credentials', true);
@@ -24,7 +24,14 @@ export default async function handler(req, res) {
         // デバッグ情報をログに出力
         console.log('=== API呼び出し開始 ===');
         console.log('環境:', process.env.NODE_ENV || 'development');
-        console.log('APIキー設定状況:', process.env.CLAUDE_API_KEY ? '設定済み' : '未設定');
+        console.log('Vercel環境変数:', {
+            VERCEL: process.env.VERCEL,
+            VERCEL_ENV: process.env.VERCEL_ENV,
+            NODE_VERSION: process.version
+        });
+        console.log('APIキー設定状況:', process.env.CLAUDE_API_KEY ? `設定済み(長さ: ${process.env.CLAUDE_API_KEY.length})` : '未設定');
+        console.log('リクエストメソッド:', req.method);
+        console.log('リクエストURL:', req.url);
 
         const { imageData } = req.body;
         console.log('画像データ受信:', imageData ? 'あり' : 'なし');
@@ -56,7 +63,7 @@ export default async function handler(req, res) {
         try {
             console.log('Claude APIへリクエスト送信中...');
             const response = await axios.post('https://api.anthropic.com/v1/messages', {
-                model: 'claude-sonnet-4-20250514',
+                model: 'claude-3-5-sonnet-20241022',
                 max_tokens: 1000,
                 messages: [{
                     role: 'user',
