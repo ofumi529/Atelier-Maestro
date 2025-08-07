@@ -35,11 +35,10 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Vercel Analytics - Temporarily disabled for deployment -->
-    <!-- <script defer src="/_vercel/insights/script.js"></script> -->
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
     <script>
-        // Fallback function for analytics
-        window.va = window.va || function () { console.log('Analytics:', arguments); };
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
     </script>
 </head>
 <body>
