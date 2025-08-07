@@ -252,6 +252,35 @@ class PaintApp {
         link.click();
     }
 
+    // 利用制限チェック関数
+    checkUsageLimit() {
+        const today = new Date().toDateString();
+        const usageData = JSON.parse(localStorage.getItem('artAnalysisUsage') || '{}');
+        
+        // 日付が変わっていたらリセット
+        if (usageData.date !== today) {
+            usageData.date = today;
+            usageData.count = 0;
+            localStorage.setItem('artAnalysisUsage', JSON.stringify(usageData));
+        }
+        
+        return {
+            canUse: usageData.count < 5,
+            remainingUses: Math.max(0, 5 - usageData.count),
+            usedToday: usageData.count
+        };
+    }
+    
+    // 利用回数をインクリメント
+    incrementUsage() {
+        const today = new Date().toDateString();
+        const usageData = JSON.parse(localStorage.getItem('artAnalysisUsage') || '{}');
+        
+        usageData.date = today;
+        usageData.count = (usageData.count || 0) + 1;
+        localStorage.setItem('artAnalysisUsage', JSON.stringify(usageData));
+    }
+
     async analyzeArt() {
         const modal = document.getElementById('analysisModal');
         const resultDiv = document.getElementById('analysisResult');
@@ -262,10 +291,26 @@ class PaintApp {
         
         // モーダルを表示
         modal.style.display = 'block';
+        
+        // 利用制限チェック
+        const usageStatus = this.checkUsageLimit();
+        if (!usageStatus.canUse) {
+            resultDiv.innerHTML = `
+                <div class="error-message">
+                    <h3>✨ 今日の利用上限に達しました</h3>
+                    <p>アート解析機能は1日に5回までご利用いただけます。</p>
+                    <p>明日またお試しください。</p>
+                    <p><small>今日の利用回数: ${usageStatus.usedToday}/5回</small></p>
+                </div>
+            `;
+            return;
+        }
+        
         resultDiv.innerHTML = `
             <div class="loading">
                 <i class="fas fa-spinner fa-spin"></i>
                 <p>AIが作品を解析中です...</p>
+                <small>残り利用回数: ${usageStatus.remainingUses - 1}/5回</small>
             </div>
         `;
         
@@ -302,6 +347,10 @@ class PaintApp {
             }
             
             if (response.ok) {
+                // 利用回数をインクリメント
+                this.incrementUsage();
+                const newUsageStatus = this.checkUsageLimit();
+                
                 // 成功時の表示
                 const analysisText = data.analysis;
                 const lines = analysisText.split('\n');
@@ -312,6 +361,9 @@ class PaintApp {
                     <div class="analysis-content">
                         <div class="analysis-title">${title}</div>
                         <div class="analysis-text">${content}</div>
+                        <div class="usage-info">
+                            <small>🎆 今日の利用回数: ${newUsageStatus.usedToday}/5回 ・ 残り: ${newUsageStatus.remainingUses}回</small>
+                        </div>
                     </div>
                 `;
             } else {
