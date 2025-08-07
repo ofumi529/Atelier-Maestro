@@ -282,7 +282,24 @@ class PaintApp {
                 body: JSON.stringify({ imageData })
             });
             
-            const data = await response.json();
+            console.log('APIレスポンス状況:', {
+                status: response.status,
+                statusText: response.statusText,
+                headers: Object.fromEntries(response.headers.entries())
+            });
+            
+            // レスポンスの内容をテキストとして取得
+            const responseText = await response.text();
+            console.log('レスポンステキスト:', responseText);
+            
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('JSON解析エラー:', parseError);
+                console.error('レスポンス内容:', responseText.substring(0, 500));
+                throw new Error(`サーバーから無効なレスポンスが返されました: ${response.status} ${response.statusText}`);
+            }
             
             if (response.ok) {
                 // 成功時の表示
