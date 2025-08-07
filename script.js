@@ -381,6 +381,9 @@ class PaintApp {
                         </div>
                     </div>
                 `;
+                
+                // シェア機能を表示して初期化
+                this.showShareButtons(title, analysisText);
             } else {
                 // エラー時の表示
                 resultDiv.innerHTML = `
@@ -458,6 +461,187 @@ class PaintApp {
 
     closeModal() {
         document.getElementById('analysisModal').style.display = 'none';
+        // シェアボタンを非表示
+        document.getElementById('shareButtons').style.display = 'none';
+    }
+
+    // X投稿用画像を生成
+    generateShareImage(title, description) {
+        const shareCanvas = document.createElement('canvas');
+        const ctx = shareCanvas.getContext('2d');
+        
+        // SNS最適サイズ (1200x630)
+        shareCanvas.width = 1200;
+        shareCanvas.height = 630;
+        
+        // 背景グラデーション
+        const gradient = ctx.createLinearGradient(0, 0, 1200, 630);
+        gradient.addColorStop(0, '#F5DEB3');
+        gradient.addColorStop(0.5, '#DEB887');
+        gradient.addColorStop(1, '#CD853F');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 1200, 630);
+        
+        // 装飾的な枠線
+        ctx.strokeStyle = '#8B4513';
+        ctx.lineWidth = 8;
+        ctx.strokeRect(20, 20, 1160, 590);
+        
+        // 内側の枠線
+        ctx.strokeStyle = '#A0522D';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(40, 40, 1120, 550);
+        
+        // アプリタイトル
+        ctx.fillStyle = '#8B4513';
+        ctx.font = 'bold 32px serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('🎨 アトリエ マエストロ', 600, 80);
+        
+        // 作品エリア（左側）
+        const artworkX = 80;
+        const artworkY = 120;
+        const artworkWidth = 400;
+        const artworkHeight = 300;
+        
+        // 額縁効果
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(artworkX - 15, artworkY - 15, artworkWidth + 30, artworkHeight + 30);
+        ctx.fillStyle = '#A0522D';
+        ctx.fillRect(artworkX - 10, artworkY - 10, artworkWidth + 20, artworkHeight + 20);
+        ctx.fillStyle = '#CD853F';
+        ctx.fillRect(artworkX - 5, artworkY - 5, artworkWidth + 10, artworkHeight + 10);
+        
+        // 白い背景
+        ctx.fillStyle = 'white';
+        ctx.fillRect(artworkX, artworkY, artworkWidth, artworkHeight);
+        
+        // 作品を描画
+        const aspectRatio = this.canvas.width / this.canvas.height;
+        let drawWidth, drawHeight;
+        if (aspectRatio > artworkWidth / artworkHeight) {
+            drawWidth = artworkWidth;
+            drawHeight = artworkWidth / aspectRatio;
+        } else {
+            drawHeight = artworkHeight;
+            drawWidth = artworkHeight * aspectRatio;
+        }
+        
+        const drawX = artworkX + (artworkWidth - drawWidth) / 2;
+        const drawY = artworkY + (artworkHeight - drawHeight) / 2;
+        ctx.drawImage(this.canvas, drawX, drawY, drawWidth, drawHeight);
+        
+        // テキストエリア（右側）
+        const textX = 520;
+        const textY = 140;
+        const textWidth = 620;
+        
+        // タイトル
+        ctx.fillStyle = '#8B4513';
+        ctx.font = 'bold 28px serif';
+        ctx.textAlign = 'left';
+        const titleLines = this.wrapText(ctx, title, textWidth, 32);
+        let currentY = textY;
+        titleLines.forEach(line => {
+            ctx.fillText(line, textX, currentY);
+            currentY += 36;
+        });
+        
+        // 解説文
+        currentY += 20;
+        ctx.fillStyle = '#654321';
+        ctx.font = '20px serif';
+        const descLines = this.wrapText(ctx, description, textWidth, 24);
+        const maxDescLines = Math.min(descLines.length, 8); // 最大8行
+        for (let i = 0; i < maxDescLines; i++) {
+            ctx.fillText(descLines[i], textX, currentY);
+            currentY += 28;
+        }
+        
+        // ハッシュタグ
+        ctx.fillStyle = '#8B4513';
+        ctx.font = 'bold 18px sans-serif';
+        ctx.fillText('#アトリエマエストロ #AI絵画解析 #デジタルアート', textX, 580);
+        
+        return shareCanvas;
+    }
+    
+    // テキストを指定幅で折り返し
+    wrapText(ctx, text, maxWidth, lineHeight) {
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = '';
+        
+        for (let word of words) {
+            const testLine = currentLine + (currentLine ? ' ' : '') + word;
+            const metrics = ctx.measureText(testLine);
+            
+            if (metrics.width > maxWidth && currentLine) {
+                lines.push(currentLine);
+                currentLine = word;
+            } else {
+                currentLine = testLine;
+            }
+        }
+        
+        if (currentLine) {
+            lines.push(currentLine);
+        }
+        
+        return lines;
+    }
+    
+    // 画像をダウンロード
+    downloadShareImage(canvas, filename = 'atelier-maestro-artwork.png') {
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    
+    // Xでシェア
+    shareOnX(title, description) {
+        const shareText = `🎨 アトリエ マエストロで作品を描きました！\n\n「${title}」\n\n${description.substring(0, 100)}...\n\n#アトリエマエストロ #AI絵画解析 #デジタルアート\n\nhttps://ateliermaestro-painting-ai.vercel.app`;
+        const encodedText = encodeURIComponent(shareText);
+        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
+        window.open(twitterUrl, '_blank', 'width=600,height=400');
+    }
+    
+    // シェア機能を表示して初期化
+    showShareButtons(title, description) {
+        const shareButtonsDiv = document.getElementById('shareButtons');
+        const sharePreviewCanvas = document.getElementById('shareImagePreview');
+        
+        // シェア用画像を生成
+        const shareCanvas = this.generateShareImage(title, description);
+        
+        // プレビュー表示
+        const previewCtx = sharePreviewCanvas.getContext('2d');
+        sharePreviewCanvas.width = 400;
+        sharePreviewCanvas.height = Math.round(400 * (630 / 1200)); // アスペクト比維持
+        previewCtx.drawImage(shareCanvas, 0, 0, sharePreviewCanvas.width, sharePreviewCanvas.height);
+        
+        // ボタンイベントリスナーを設定
+        const downloadBtn = document.getElementById('downloadImageBtn');
+        const twitterBtn = document.getElementById('shareTwitterBtn');
+        
+        // 既存のイベントリスナーを削除
+        downloadBtn.replaceWith(downloadBtn.cloneNode(true));
+        twitterBtn.replaceWith(twitterBtn.cloneNode(true));
+        
+        // 新しいイベントリスナーを追加
+        document.getElementById('downloadImageBtn').addEventListener('click', () => {
+            this.downloadShareImage(shareCanvas, `atelier-maestro-${Date.now()}.png`);
+        });
+        
+        document.getElementById('shareTwitterBtn').addEventListener('click', () => {
+            this.shareOnX(title, description);
+        });
+        
+        // シェアボタンを表示
+        shareButtonsDiv.style.display = 'block';
     }
 
     handleResize() {

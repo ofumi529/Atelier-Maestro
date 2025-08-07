@@ -145,6 +145,24 @@
                         <p>AIが作品を解析中です...</p>
                     </div>
                 </div>
+                
+                <!-- シェア機能ボタン -->
+                <div id="shareButtons" class="share-buttons" style="display: none;">
+                    <h3><i class="fas fa-share-alt"></i> 作品をシェア</h3>
+                    <div class="share-button-group">
+                        <button id="downloadImageBtn" class="share-btn download-btn">
+                            <i class="fas fa-download"></i>
+                            画像をダウンロード
+                        </button>
+                        <button id="shareTwitterBtn" class="share-btn twitter-btn">
+                            <i class="fab fa-twitter"></i>
+                            Xでシェア
+                        </button>
+                    </div>
+                    <div id="sharePreview" class="share-preview">
+                        <canvas id="shareImagePreview" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 8px;"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

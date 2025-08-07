@@ -676,17 +676,89 @@ body {
 /* 利用制限関連のスタイル */
 .usage-info {
     margin-top: 1rem;
-    padding: 0.75rem;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 0.8rem;
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 8px;
-    border-left: 4px solid #28a745;
+    font-size: 0.9rem;
+    color: #666;
     text-align: center;
+}
+
+/* シェア機能スタイル */
+.share-buttons {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #F5F5DC 0%, #F0E68C 100%);
+    border-radius: 12px;
+    border: 2px solid #DAA520;
+}
+
+.share-buttons h3 {
+    margin: 0 0 1rem 0;
+    color: #8B4513;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.share-button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.share-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.download-btn {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+}
+
+.download-btn:hover {
+    background: linear-gradient(135deg, #45a049, #3d8b40);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.twitter-btn {
+    background: linear-gradient(135deg, #1DA1F2, #0d8bd9);
+    color: white;
+}
+
+.twitter-btn:hover {
+    background: linear-gradient(135deg, #0d8bd9, #0a7bc4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.share-preview {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.share-preview canvas {
+    max-width: 100%;
+    height: auto;
+    border: 2px solid #8B4513;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .usage-info small {
     color: #495057;
     font-weight: 500;
-    display: block;
 }
 
 .error-message {
